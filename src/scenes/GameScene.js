@@ -1159,10 +1159,16 @@ class GameScene extends Phaser.Scene {
 
         // wire types: 0=straight(|), 1=corner(L), 2=tee(T)
         // connections per rotation: [up, right, down, left]
+        // solved layout forms S-curve from left to right:
+        //   →(0,0)→(0,1)→(0,2)
+        //           ↓      ↓
+        //   (1,0)←(1,1)←(1,2)
+        //     ↓
+        //   (2,0)→(2,1)→(2,2)→
         const pieces = [
-            { type: 0, rot: 0 }, { type: 1, rot: 1 }, { type: 0, rot: 1 },
-            { type: 1, rot: 0 }, { type: 2, rot: 2 }, { type: 1, rot: 3 },
-            { type: 0, rot: 0 }, { type: 1, rot: 2 }, { type: 0, rot: 1 },
+            { type: 0, rot: 1 }, { type: 2, rot: 1 }, { type: 1, rot: 2 },
+            { type: 1, rot: 1 }, { type: 2, rot: 3 }, { type: 1, rot: 3 },
+            { type: 1, rot: 0 }, { type: 0, rot: 1 }, { type: 0, rot: 1 },
         ];
         // randomize initial rotations
         const state = pieces.map(p => ({ type: p.type, rot: (p.rot + Phaser.Math.Between(1, 3)) % 4, solveRot: p.rot }));
