@@ -1,0 +1,33 @@
+name: Deploy to Pages
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache-bust source files
+        run: |
+          HASH=$(find src -name '*.js' -exec sha256sum {} \; | sha256sum | cut -c1-8)
+          find src -name '*.js' -exec sed -i "s/\.js'/.${HASH}.js'/g" {} \;
+          sed -i "s|src/main.js|src/main.${HASH}.js|g" index.html
+          for f in $(find src -name '*.js'); do
+            dir=$(dirname "$f")
+            base=$(basename "$f" .js)
+            new="${dir}/${base}.${HASH}.js"
+            mv "$f" "$new"
+          done
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
